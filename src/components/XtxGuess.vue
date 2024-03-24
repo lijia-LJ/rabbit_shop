@@ -2,15 +2,38 @@
 import { getHomeGussLikeAPI } from '@/services/home'
 import { onMounted, ref } from 'vue'
 import type { GuessItem } from '@/types/home'
+import type { PageParams } from '@/types/global'
 
+// 已结束的标记
+const finish = ref(false)
 const HomeGussLikeList = ref<GuessItem[]>([])
+const pageParams: Required<PageParams> = {
+  page: 33,
+  pageSize: 10,
+}
 const getHomeGussLikeData = async () => {
-  const res = await getHomeGussLikeAPI()
-  HomeGussLikeList.value = res.result.items
+  if (finish.value === true) {
+    return uni.showToast({ icon: 'none', title: '没有更多数据了~' })
+  }
+  const res = await getHomeGussLikeAPI(pageParams)
+  // HomeGussLikeList.value = res.result.items
+  // 数组追加
+  HomeGussLikeList.value.push(...res.result.items)
+  if (pageParams.page < res.result.pages) {
+    // 页码累加
+    pageParams.page++
+  } else {
+    finish.value = true
+  }
 }
 //组件挂载完成时请求数据
 onMounted(() => {
   getHomeGussLikeData()
+})
+
+// 暴露方法
+defineExpose({
+  getMore: getHomeGussLikeData,
 })
 </script>
 
@@ -34,7 +57,7 @@ onMounted(() => {
       </view>
     </navigator>
   </view>
-  <view class="loading-text"> 正在加载... </view>
+  <view class="loading-text"> {{ finish ? '没有更多数据了~' : '正在加载...' }}</view>
 </template>
 
 <style lang="scss">

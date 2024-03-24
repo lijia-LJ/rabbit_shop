@@ -6,6 +6,7 @@ import { getHomeBannerAPI, getHomeCategoryAPI, getHomeHotAPI } from '@/services/
 import { onLoad } from '@dcloudio/uni-app'
 import type { BannerItem, CategoryItem, HotItem } from '@/types/home'
 import { ref } from 'vue'
+import type { XtxGuessInstance } from '@/types/component'
 import CategoryPanel from '@/pages/index/components/CategoryPanel.vue'
 import HotPanel from '@/pages/index/components/HotPanel.vue'
 
@@ -34,13 +35,21 @@ const getHomeHotAPIData = async () => {
 onLoad(() => {
   getHomeBannerData(), getHomeCategoryAPIData(), getHomeHotAPIData()
 })
+
+// 猜你喜欢滚动触底时触发
+const guessRef = ref<XtxGuessInstance>() // 猜你喜欢组件实例
+const onScrolltolower = () => {
+  console.log('触底啦~')
+  // 父调子的方法
+  guessRef.value?.getMore()
+}
 </script>
 
 <template>
   <!-- 自定义导航栏 -->
   <CustomNavbar></CustomNavbar>
   <!-- 滚动容器 1、设置滚动方向 2、设置滚动区域高度-->
-  <scroll-view class="scroll-view" scroll-y>
+  <scroll-view class="scroll-view" scroll-y @scrolltolower="onScrolltolower">
     <!-- 自定义轮播图 -->
     <XtxSwiper :list="bannerList"></XtxSwiper>
     <!-- 分类面板 -->
@@ -48,7 +57,7 @@ onLoad(() => {
     <!-- 热门推荐 -->
     <HotPanel :list="hotList"></HotPanel>
     <!-- 猜你喜欢 -->
-    <XtxGuess></XtxGuess>
+    <XtxGuess ref="guessRef"></XtxGuess>
   </scroll-view>
 </template>
 
