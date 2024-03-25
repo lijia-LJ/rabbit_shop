@@ -8,9 +8,10 @@ import type { PageParams } from '@/types/global'
 const finish = ref(false)
 const HomeGussLikeList = ref<GuessItem[]>([])
 const pageParams: Required<PageParams> = {
-  page: 33,
+  page: 1,
   pageSize: 10,
 }
+
 const getHomeGussLikeData = async () => {
   if (finish.value === true) {
     return uni.showToast({ icon: 'none', title: '没有更多数据了~' })
@@ -26,14 +27,23 @@ const getHomeGussLikeData = async () => {
     finish.value = true
   }
 }
+
 //组件挂载完成时请求数据
 onMounted(() => {
   getHomeGussLikeData()
 })
 
+// 重置数据
+const resetData = () => {
+  pageParams.page = 1
+  HomeGussLikeList.value = []
+  finish.value = false
+}
+
 // 暴露方法
 defineExpose({
   getMore: getHomeGussLikeData,
+  resetData,
 })
 </script>
 

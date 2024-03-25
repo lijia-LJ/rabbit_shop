@@ -43,13 +43,39 @@ const onScrolltolower = () => {
   // 父调子的方法
   guessRef.value?.getMore()
 }
+
+// 添加下拉刷新
+// 动画的状态
+const isTriggered = ref(false)
+const onRefresherrefresh = async () => {
+  // 开启动画
+  isTriggered.value = true
+  // 重置猜你喜欢数据
+  guessRef.value?.resetData()
+  // 下拉刷新请求数据
+  await Promise.all([
+    getHomeBannerData(),
+    getHomeCategoryAPIData(),
+    getHomeHotAPIData(),
+    guessRef.value?.getMore(),
+  ])
+  // 关闭动画
+  isTriggered.value = false
+}
 </script>
 
 <template>
   <!-- 自定义导航栏 -->
   <CustomNavbar></CustomNavbar>
   <!-- 滚动容器 1、设置滚动方向 2、设置滚动区域高度-->
-  <scroll-view class="scroll-view" scroll-y @scrolltolower="onScrolltolower">
+  <scroll-view
+    class="scroll-view"
+    scroll-y
+    @scrolltolower="onScrolltolower"
+    refresher-enabled
+    @refresherrefresh="onRefresherrefresh"
+    :refresher-triggered="isTriggered"
+  >
     <!-- 自定义轮播图 -->
     <XtxSwiper :list="bannerList"></XtxSwiper>
     <!-- 分类面板 -->
